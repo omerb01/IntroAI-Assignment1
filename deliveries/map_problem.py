@@ -38,7 +38,7 @@ class MapProblem(GraphProblem):
         self.roads = roads
         self.target_junction_id = target_junction_id
         self.name += '(src: {} dst: {})'.format(source_junction_id, target_junction_id)
-    
+
     def expand_state_with_costs(self, state_to_expand: GraphProblemState) -> Iterator[Tuple[GraphProblemState, float]]:
         """
         For a given state, iterates over its successor states.
@@ -60,7 +60,8 @@ class MapProblem(GraphProblem):
             # TODO: calculate the distance between `junction` and the successor's junction.
             # Use the method `calc_air_distance_from()` of class `Junction` to measure this distance.
             # Do NOT use `link.distance` here.
-            operator_cost = 1  # TODO: modify this!
+            successor_junction = self.roads[successor_state.junction_id]
+            operator_cost = junction.calc_air_distance_from(successor_junction)  # TODO: modify this!
 
             # Yield the successor state and the cost of the operator we used to get this successor.
             yield successor_state, operator_cost
@@ -73,4 +74,4 @@ class MapProblem(GraphProblem):
 
         # TODO: modify the returned value to indicate whether `state` is a final state.
         # You may use the problem's input parameters (stored as fields of this object by the constructor).
-        return state.junction_id == 14593
+        return state.junction_id == self.target_junction_id
