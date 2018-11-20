@@ -39,7 +39,8 @@ class RelaxedDeliveriesState(GraphProblemState):
         TODO: implement this method!
         Notice: Never compare floats using `==` operator! Use `fuel_as_int` instead of `fuel`.
         """
-        raise NotImplemented()  # TODO: remove!
+        return self.current_location == other.current_location and \
+               self.dropped_so_far == other.dropped_so_far and self.fuel_as_int == other.fuel_as_int
 
     def __hash__(self):
         """
@@ -53,8 +54,9 @@ class RelaxedDeliveriesState(GraphProblemState):
                 Otherwise the upper requirement would not met.
                 In our case, use `fuel_as_int`.
         """
-        raise NotImplemented()  # TODO: remove!
+        return hash((self.current_location, self.dropped_so_far, self.fuel_as_int))
 
+    @property
     def __str__(self):
         """
         Used by the printing mechanism of `SearchResult`.
@@ -93,7 +95,22 @@ class RelaxedDeliveriesProblem(GraphProblem):
         """
         assert isinstance(state_to_expand, RelaxedDeliveriesState)
 
-        raise NotImplemented()  # TODO: remove!
+        # Iterate over all the possible stop points.
+        for stop in self.possible_stop_points:
+            operator_cost = state_to_expand.current_location.calc_air_distance_from(stop)
+            # Create the successor state if the fuel is enough to reach that point.
+            if state_to_expand.fuel_as_int >= operator_cost:  # TODO: maybe * 1000000
+                if stop in self.gas_stations:
+                    successor_state = RelaxedDeliveriesState(stop, state_to_expand.dropped_so_far,
+                                                             self.gas_tank_capacity)
+                    yield successor_state, operator_cost
+                elif stop in self.drop_points:
+                    successor_state = RelaxedDeliveriesState(stop, state_to_expand.dropped_so_far + frozenset(stop)
+                                                             , state_to_expand.fuel - operator_cost)
+                    yield successor_state, operator_cost
+                else:
+                    raise Exception("Stop is not gas station or drop point :'( ")
+        # TODO : maybe if return nothing there will be error.
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
@@ -102,7 +119,7 @@ class RelaxedDeliveriesProblem(GraphProblem):
         """
         assert isinstance(state, RelaxedDeliveriesState)
 
-        raise NotImplemented()  # TODO: remove!
+        return state.current_location in self.drop_points
 
     def solution_additional_str(self, result: 'SearchResult') -> str:
         """This method is used to enhance the printing method of a found solution."""

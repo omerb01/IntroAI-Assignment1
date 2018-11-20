@@ -34,7 +34,7 @@ def plot_distance_and_expanded_wrt_weight_figure(
     # https://matplotlib.org/2.0.0/api/_as_gen/matplotlib.axes.Axes.plot.html
     # You can also search google for additional examples.
 
-    ax1.plot(total_distance)
+    ax1.plot(weights, total_distance, 'b')
 
     # ax1: Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel('distance traveled', color='b')
@@ -47,7 +47,11 @@ def plot_distance_and_expanded_wrt_weight_figure(
     # TODO: Plot the total expanded with ax2. Use `ax2.plot(...)`.
     # TODO: ax2: Make the y-axis label, ticks and tick labels match the line color.
     # TODO: Make this curve colored red with solid line style.
-    raise NotImplemented()
+
+    ax2.plot(weights, total_expanded, 'r')
+
+    ax2.set_ylabel('states expanded', color='r')
+    ax2.tick_params('y', colors='r')
 
     fig.tight_layout()
     plt.show()
@@ -75,8 +79,6 @@ def run_astar_for_weights_in_range(heuristic_type: HeuristicFunctionType, proble
         states_list.append(res.nr_expanded_states)
     plot_distance_and_expanded_wrt_weight_figure(w_array, cost_list, states_list)
 
-    raise NotImplemented()  # TODO: remove!
-
 
 def map_problem():
     print()
@@ -85,8 +87,8 @@ def map_problem():
     # Ex.8
     map_prob = MapProblem(roads, 54, 549)
     uc = UniformCost()
-   # res = uc.solve_problem(map_prob)
-   # print(res)
+    res = uc.solve_problem(map_prob)
+    print(res)
 
     # Ex.10
     # TODO: create an instance of `AStar` with the `NullHeuristic`,
@@ -95,16 +97,16 @@ def map_problem():
     #         and not an instance of the heuristic (eg: not `MyHeuristicClass()`).
 
     a_star = AStar(NullHeuristic)
-#    res = a_star.solve_problem(map_prob)
- #   print(res)
+    res = a_star.solve_problem(map_prob)
+    print(res)
 
     # Ex.11
     # TODO: create an instance of `AStar` with the `AirDistHeuristic`,
     #       solve the same `map_prob` with it and print the results (as before).
 
     a_star = AStar(AirDistHeuristic)
-  #  res = a_star.solve_problem(map_prob)
-   # print(res)
+    res = a_star.solve_problem(map_prob)
+    print(res)
 
     # Ex.12
     # TODO:

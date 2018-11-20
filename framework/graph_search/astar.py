@@ -77,7 +77,7 @@ class AStar(BestFirstSearch):
         elif self.close.has_state(successor_node.state): #check if state is in close
             already_found_node_with_same_state = self.close.get_node_by_state(successor_node.state)
             if already_found_node_with_same_state.expanding_priority > successor_node.expanding_priority:
-                self.close.extract_node(already_found_node_with_same_state) #new cost is better
+                self.close.remove_node(already_found_node_with_same_state) #new cost is better
                 self.open.push_node(successor_node)
 
         else:   #state is not in close nor open.
