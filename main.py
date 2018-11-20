@@ -33,7 +33,8 @@ def plot_distance_and_expanded_wrt_weight_figure(
     # See documentation here:
     # https://matplotlib.org/2.0.0/api/_as_gen/matplotlib.axes.Axes.plot.html
     # You can also search google for additional examples.
-    raise NotImplemented()
+
+    ax1.plot(total_distance)
 
     # ax1: Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel('distance traveled', color='b')
@@ -64,6 +65,16 @@ def run_astar_for_weights_in_range(heuristic_type: HeuristicFunctionType, proble
     #    the #expanded.
     # Call the function `plot_distance_and_expanded_by_weight_figure()`
     #  with that data.
+
+    cost_list = []
+    states_list = []
+    w_array = np.linspace(0.5, 1, 20)
+    for w in w_array:
+        res = AStar(heuristic_type, w).solve_problem(problem)
+        cost_list.append(res.final_search_node.cost)
+        states_list.append(res.nr_expanded_states)
+    plot_distance_and_expanded_wrt_weight_figure(w_array, cost_list, states_list)
+
     raise NotImplemented()  # TODO: remove!
 
 
@@ -74,8 +85,8 @@ def map_problem():
     # Ex.8
     map_prob = MapProblem(roads, 54, 549)
     uc = UniformCost()
-    res = uc.solve_problem(map_prob)
-    print(res)
+   # res = uc.solve_problem(map_prob)
+   # print(res)
 
     # Ex.10
     # TODO: create an instance of `AStar` with the `NullHeuristic`,
@@ -84,16 +95,16 @@ def map_problem():
     #         and not an instance of the heuristic (eg: not `MyHeuristicClass()`).
 
     a_star = AStar(NullHeuristic)
-    res = a_star.solve_problem(map_prob)
-    print(res)
+#    res = a_star.solve_problem(map_prob)
+ #   print(res)
 
     # Ex.11
     # TODO: create an instance of `AStar` with the `AirDistHeuristic`,
     #       solve the same `map_prob` with it and print the results (as before).
 
     a_star = AStar(AirDistHeuristic)
-    res = a_star.solve_problem(map_prob)
-    print(res)
+  #  res = a_star.solve_problem(map_prob)
+   # print(res)
 
     # Ex.12
     # TODO:
@@ -104,7 +115,8 @@ def map_problem():
     #    (upper in this file).
     # 3. Call here the function `run_astar_for_weights_in_range()`
     #    with `AirDistHeuristic` and `map_prob`.
-    exit()  # TODO: remove!
+
+    run_astar_for_weights_in_range(AirDistHeuristic, map_prob)
 
 
 # --------------------------------------------------------------------
