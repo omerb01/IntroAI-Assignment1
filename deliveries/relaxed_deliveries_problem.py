@@ -1,3 +1,4 @@
+from framework import Junction
 from framework.graph_search import *
 from framework.ways import *
 from .deliveries_problem_input import DeliveriesProblemInput
@@ -56,7 +57,6 @@ class RelaxedDeliveriesState(GraphProblemState):
         """
         return hash((self.current_location, self.dropped_so_far, self.fuel_as_int))
 
-    @property
     def __str__(self):
         """
         Used by the printing mechanism of `SearchResult`.
@@ -96,16 +96,24 @@ class RelaxedDeliveriesProblem(GraphProblem):
         assert isinstance(state_to_expand, RelaxedDeliveriesState)
 
         # Iterate over all the other possible stop points that we havn't visited.
-        for stop in self.possible_stop_points - state_to_expand.dropped_so_far - - frozenset(state_to_expand.current_location):
+        for stop in self.possible_stop_points - state_to_expand.dropped_so_far:
+            # Check if the current stop isn't the state to expand.
+            if stop == state_to_expand.current_location:
+                continue
             operator_cost = state_to_expand.current_location.calc_air_distance_from(stop)
             # Create the successor state if the fuel is enough to reach that point.
-            if state_to_expand.fuel_as_int >= operator_cost:  # TODO: maybe * 1000000
+            if state_to_expand.fuel_as_int >= operator_cost * 1000000:  # fuel as int returns a larger unit by 1000000
                 if stop in self.gas_stations:
                     successor_state = RelaxedDeliveriesState(stop, state_to_expand.dropped_so_far,
                                                              self.gas_tank_capacity)
                     yield successor_state, operator_cost
                 elif stop in self.drop_points:
-                    successor_state = RelaxedDeliveriesState(stop, state_to_expand.dropped_so_far + frozenset(stop)
+                    # Create new dropped so far set with the new drop point.
+                    new_dropped_so_far = set()
+                    for j in state_to_expand.dropped_so_far:
+                        new_dropped_so_far.add(j)
+                    new_dropped_so_far.add(stop)
+                    successor_state = RelaxedDeliveriesState(stop, new_dropped_so_far
                                                              , state_to_expand.fuel - operator_cost)
                     yield successor_state, operator_cost
                 else:
@@ -119,7 +127,7 @@ class RelaxedDeliveriesProblem(GraphProblem):
         """
         assert isinstance(state, RelaxedDeliveriesState)
 
-        return state.current_location in self.drop_points
+        return self.drop_points == state.dropped_so_far
 
     def solution_additional_str(self, result: 'SearchResult') -> str:
         """This method is used to enhance the printing method of a found solution."""
