@@ -95,8 +95,8 @@ class RelaxedDeliveriesProblem(GraphProblem):
         """
         assert isinstance(state_to_expand, RelaxedDeliveriesState)
 
-        # Iterate over all the possible stop points.
-        for stop in self.possible_stop_points:
+        # Iterate over all the other possible stop points that we havn't visited.
+        for stop in self.possible_stop_points - state_to_expand.dropped_so_far - - frozenset(state_to_expand.current_location):
             operator_cost = state_to_expand.current_location.calc_air_distance_from(stop)
             # Create the successor state if the fuel is enough to reach that point.
             if state_to_expand.fuel_as_int >= operator_cost:  # TODO: maybe * 1000000
