@@ -56,23 +56,17 @@ class GreedyStochastic(BestFirstSearch):
         if self.open.is_empty():
             return None
 
-        size_to_extract = self.N
+        size_to_extract = min(self.N, len(self.open))
         # check if size of open is smaller than N.
-        if len(self.open) < size_to_extract:
-            size_to_extract = len(self.open)
 
         h = self.heuristic_function.estimate
-        x = []
 
         # put all min(N,sizeof(open)) nodes in a list called x (just like in the example)
-        min_node = self.open.pop_next_node()
-        x.append(min_node)
-        for i in range(size_to_extract - 1):
+        x = []
+        for i in range(size_to_extract):
             node = self.open.pop_next_node()
             x.append(node)
-
-            if h(min_node.state) > h(node.state):
-                min_node = node
+        min_node = x[0]
 
         # we might have reached out goal and the heuristic function will return 0
         if h(min_node.state) == 0:
@@ -89,7 +83,7 @@ class GreedyStochastic(BestFirstSearch):
                 p.append(probability)
 
             # choose randomly
-            node_to_expand = np.random.choice(x, None, p=p)
+            node_to_expand = np.random.choice(x, size=None, p=p)
 
         # pushing un-chosen nodes back to the open list
         for x_node in x:

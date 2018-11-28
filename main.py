@@ -176,13 +176,27 @@ def relaxed_deliveries_problem():
     #    greedy are not dependent with the iteration number, so
     #    these two should be represented by horizontal lines.
 """
-    greedy_stochastic = GreedyStochastic(MSTAirDistHeuristic)
-    costs_list = []
     K = 100
+    costs_list = []
+    anytime_costs_list = []
+    min_cost = -1
     for i in range(K):
-        costs_list.append(greedy_stochastic.solve_problem(big_deliveries_prob).final_search_node.cost)
+        greedy_stochastic = GreedyStochastic(MSTAirDistHeuristic)
+        cost = greedy_stochastic.solve_problem(big_deliveries_prob).final_search_node.cost
+        costs_list.append(cost)
+        if min_cost > cost or i == 0:
+            min_cost = cost
+        anytime_costs_list.append(min_cost)
 
-    plt.plot(range(1,K+1), costs_list, label="Greedy Stochasic")
+    a_star = AStar(MSTAirDistHeuristic)
+    cost_astar = a_star.solve_problem(big_deliveries_prob).final_search_node.cost
+    greedy_best = AStar(MSTAirDistHeuristic, 1)
+    cost_greedy = greedy_best.solve_problem(big_deliveries_prob).final_search_node.cost
+
+    plt.plot(range(K), costs_list, label="Greedy Stochasic")
+    plt.plot(range(K), anytime_costs_list, label="Anytime Greedy Stochasic")
+    plt.plot(range(K), [cost_astar] * K, label="A*")
+    plt.plot(range(K), [cost_greedy] * K, label="Greedy Best")
 
     plt.xlabel("Iteration Number")
     plt.ylabel("Cost")
@@ -190,10 +204,6 @@ def relaxed_deliveries_problem():
     plt.legend()
     plt.grid()
     plt.show()
-
-
-
-    anytime_list = []
 
 
 def strict_deliveries_problem():
