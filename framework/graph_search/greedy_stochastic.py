@@ -89,7 +89,7 @@ class GreedyStochastic(BestFirstSearch):
                 p.append(probability)
 
             # choose randomly
-            node_to_expand = np.random.choice(x, 1, p=p)[0]
+            node_to_expand = np.random.choice(x, None, p=p)
 
         # pushing un-chosen nodes back to the open list
         for x_node in x:
@@ -101,5 +101,5 @@ class GreedyStochastic(BestFirstSearch):
             self.close.add_node(node_to_expand)
 
         # decrese T by 0.95
-        self.T = self.T * 0.95
+        self.T *= self.T_scale_factor
         return node_to_expand
