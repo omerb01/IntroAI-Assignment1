@@ -9,6 +9,7 @@ T = np.linspace(0.01,5,100)
 P = np.zeros((100,5))
 min_x=min(X)
 
+
 for i in range(len(X)) :
     for t in range(len(T)):
         sum = 0
@@ -16,7 +17,6 @@ for i in range(len(X)) :
             sum += np.power(X[j]/min_x,((-1)/T[t]))
         probability = np.power(X[i]/min_x,((-1)/T[t]))/sum
         P[t][i]=probability
-
 print(P)
 
 for i in range(len(X)):

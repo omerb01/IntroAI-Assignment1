@@ -131,6 +131,7 @@ def relaxed_deliveries_problem():
 
     big_delivery = DeliveriesProblemInput.load_from_file('big_delivery.in', roads)
     big_deliveries_prob = RelaxedDeliveriesProblem(big_delivery)
+    """
 
     # Ex.16
     # TODO: create an instance of `AStar` with the `MaxAirDistHeuristic`,
@@ -154,7 +155,6 @@ def relaxed_deliveries_problem():
 
     run_astar_for_weights_in_range(MSTAirDistHeuristic, big_deliveries_prob)
 
-
     # Ex.24
     # TODO:
     # 1. Run the stochastic greedy algorithm for 100 times.
@@ -175,7 +175,25 @@ def relaxed_deliveries_problem():
     #    (x-axis). Of course that the costs of A*, and deterministic
     #    greedy are not dependent with the iteration number, so
     #    these two should be represented by horizontal lines.
-    exit()  # TODO: remove!
+"""
+    greedy_stochastic = GreedyStochastic(MSTAirDistHeuristic)
+    costs_list = []
+    K = 100
+    for i in range(K):
+        costs_list.append(greedy_stochastic.solve_problem(big_deliveries_prob).final_search_node.cost)
+
+    plt.plot(range(1,K+1), costs_list, label="Greedy Stochasic")
+
+    plt.xlabel("Iteration Number")
+    plt.ylabel("Cost")
+    plt.title("Cost as a function of iteration number")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
+
+    anytime_list = []
 
 
 def strict_deliveries_problem():
@@ -198,7 +216,7 @@ def strict_deliveries_problem():
 
 
 def main():
-    #map_problem()
+    # map_problem()
     relaxed_deliveries_problem()
     strict_deliveries_problem()
 

@@ -25,7 +25,9 @@ class GreedyStochastic(BestFirstSearch):
         TODO: implement this method!
         """
 
-        raise NotImplemented()  # TODO: remove!
+        # check if node is not in open and not in close, if so put it in open.
+        if not self.open.has_state(successor_node.state) and not self.close.has_state(successor_node.state):
+            self.open.push_node(successor_node)
 
     def _calc_node_expanding_priority(self, search_node: SearchNode) -> float:
         """
@@ -33,7 +35,7 @@ class GreedyStochastic(BestFirstSearch):
         Remember: `GreedyStochastic` is greedy.
         """
 
-        raise NotImplemented()  # TODO: remove!
+        return self.heuristic_function.estimate(search_node.state)
 
     def _extract_next_search_node_to_expand(self) -> Optional[SearchNode]:
         """
@@ -51,4 +53,53 @@ class GreedyStochastic(BestFirstSearch):
                 pushed again into that queue.
         """
 
-        raise NotImplemented()  # TODO: remove!
+        if self.open.is_empty():
+            return None
+
+        size_to_extract = self.N
+        # check if size of open is smaller than N.
+        if len(self.open) < size_to_extract:
+            size_to_extract = len(self.open)
+
+        h = self.heuristic_function.estimate
+        x = []
+
+        # put all min(N,sizeof(open)) nodes in a list called x (just like in the example)
+        min_node = self.open.pop_next_node()
+        x.append(min_node)
+        for i in range(size_to_extract - 1):
+            node = self.open.pop_next_node()
+            x.append(node)
+
+            if h(min_node.state) > h(node.state):
+                min_node = node
+
+        # we might have reached out goal and the heuristic function will return 0
+        if h(min_node.state) == 0:
+            node_to_expand = min_node
+        else:
+            # calc the probability list for each heuristic value.
+            p = []
+            sum = 0
+            for x_node in x:
+                sum += ((h(x_node.state) / h(min_node.state)) ** ((-1) / self.T))
+
+            for x_node in x:
+                probability = ((h(x_node.state) / h(min_node.state)) ** ((-1) / self.T)) / sum
+                p.append(probability)
+
+            # choose randomly
+            node_to_expand = np.random.choice(x, 1, p=p)[0]
+
+        # pushing un-chosen nodes back to the open list
+        for x_node in x:
+            if x_node.state != node_to_expand.state:
+                self.open.push_node(x_node)
+
+        # put chosen node in close
+        if self.use_close:
+            self.close.add_node(node_to_expand)
+
+        # decrese T by 0.95
+        self.T = self.T * 0.95
+        return node_to_expand
