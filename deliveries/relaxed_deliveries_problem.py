@@ -118,7 +118,6 @@ class RelaxedDeliveriesProblem(GraphProblem):
                     yield successor_state, operator_cost
                 else:
                     raise Exception("Stop is not gas station or drop point :'( ")
-        # TODO : maybe if return nothing there will be error.
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """

@@ -67,8 +67,50 @@ class StrictDeliveriesProblem(RelaxedDeliveriesProblem):
         For each successor, a pair of the successor state and the operator cost is yielded.
         """
         assert isinstance(state_to_expand, StrictDeliveriesState)
+        UNREACHABLE_NODE = -1
 
-        raise NotImplemented()  # TODO: remove!
+        # Iterate over all the other possible stop points.
+        for stop in self.possible_stop_points - state_to_expand.dropped_so_far:
+            # Check if the current stop isn't the state to expand.
+            if stop == state_to_expand.current_location:
+                continue
+
+            cache_key = (state_to_expand.current_location.index, stop.index)
+            operator_cost = self._get_from_cache(cache_key)
+
+            # we haven't calculated the distance from these two stops
+            if operator_cost is None:
+                new_map_prob = MapProblem(self.roads, state_to_expand.current_location.index, stop.index)
+                restult_node = self.inner_problem_solver.solve_problem(new_map_prob).final_search_node
+                # can't reach the desired stop.
+                if restult_node is None:
+                    operator_cost = UNREACHABLE_NODE
+                else:
+                    operator_cost = restult_node.cost
+                # insert to cache
+                self._insert_to_cache(cache_key, operator_cost)
+
+            # unreachable stop from current location, continue.
+            if operator_cost == UNREACHABLE_NODE:
+                continue
+
+            # Create the successor state if the fuel is enough to reach that point.
+            if state_to_expand.fuel_as_int >= operator_cost * 1000000:  # fuel as int returns a larger unit by 1000000
+                if stop in self.gas_stations:
+                    successor_state = StrictDeliveriesState(stop, state_to_expand.dropped_so_far,
+                                                             self.gas_tank_capacity)
+                    yield successor_state, operator_cost
+                elif stop in self.drop_points:
+                    # Create new dropped so far set with the new drop point.
+                    new_dropped_so_far = set()
+                    for j in state_to_expand.dropped_so_far:
+                        new_dropped_so_far.add(j)
+                    new_dropped_so_far.add(stop)
+                    successor_state = StrictDeliveriesState(stop, new_dropped_so_far
+                                                            , state_to_expand.fuel - operator_cost)
+                    yield successor_state, operator_cost
+                else:
+                    raise Exception("Stop is not gas station or drop point :'( ")
 
     def is_goal(self, state: GraphProblemState) -> bool:
         """
@@ -77,4 +119,4 @@ class StrictDeliveriesProblem(RelaxedDeliveriesProblem):
         """
         assert isinstance(state, StrictDeliveriesState)
 
-        raise NotImplemented()  # TODO: remove!
+        return self.drop_points == state.dropped_so_far
