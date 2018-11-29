@@ -22,12 +22,11 @@ class MaxAirDistHeuristic(HeuristicFunction):
         assert isinstance(state, RelaxedDeliveriesState)
 
         max_dist = 0
-        for target_junction in self.problem.drop_points-frozenset(state.dropped_so_far):
+        for target_junction in self.problem.drop_points - frozenset(state.dropped_so_far):
             dist = state.current_location.calc_air_distance_from(target_junction)
             if max_dist < dist:
-                max_dist=dist
+                max_dist = dist
         return max_dist
-
 
 
 class MSTAirDistHeuristic(HeuristicFunction):
@@ -81,5 +80,17 @@ class RelaxedDeliveriesHeuristic(HeuristicFunction):
         assert isinstance(self.problem, StrictDeliveriesProblem)
         assert isinstance(state, StrictDeliveriesState)
 
-        raise NotImplemented()  # TODO: remove!
+        input_name = 'new_relaxed_inputs'
+        start_point = state.current_location
+        drop_points = self.problem.drop_points
+        gas_stations = self.problem.gas_stations
+        gas_tank_capacity = self.problem.gas_tank_capacity
+        gas_tank_init_fuel = state.fuel
+        input = DeliveriesProblemInput(input_name, start_point, drop_points, gas_stations, gas_tank_capacity,
+                                       gas_tank_init_fuel)
 
+        relaxed_prob = RelaxedDeliveriesProblem(input)
+        a_star = AStar(MSTAirDistHeuristic)
+        res = a_star.solve_problem(relaxed_prob)
+
+        return res.final_search_node.cost
