@@ -82,7 +82,7 @@ class RelaxedDeliveriesHeuristic(HeuristicFunction):
 
         input_name = 'new_relaxed_inputs'
         start_point = state.current_location
-        drop_points = self.problem.drop_points
+        drop_points = self.problem.drop_points - state.dropped_so_far
         gas_stations = self.problem.gas_stations
         gas_tank_capacity = self.problem.gas_tank_capacity
         gas_tank_init_fuel = state.fuel
@@ -93,4 +93,6 @@ class RelaxedDeliveriesHeuristic(HeuristicFunction):
         a_star = AStar(MSTAirDistHeuristic)
         res = a_star.solve_problem(relaxed_prob)
 
+        if res.final_search_node is None:
+            return np.inf
         return res.final_search_node.cost
